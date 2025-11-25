@@ -1,0 +1,26 @@
+[user]
+	name = manuelqh-dev
+	email = manuelqh.dev@gmail.com
+
+[core]
+	editor = code --wait
+
+[color]
+    ui = auto
+
+[alias]
+    st = status
+    co = checkout
+    br = branch
+    cm = commit
+    df = diff
+    lg = log --oneline --graph --decorate --all
+
+[credential]
+    helper = osxkeychain
+
+[core]
+    editor = code
+
+[push]
+    default = simple
