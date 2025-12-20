@@ -1,28 +1,34 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Desactivar analytics de Homebrew
 export HOMEBREW_NO_ANALYTICS=1
 
-# Si brew ya existe, actualizar y salir
 if command -v brew >/dev/null 2>&1; then
   echo "Homebrew ya instalado: $(brew --version | head -n1)"
-  # Permitir fallos no críticos sin abortar
   brew update || true
   brew upgrade || true
   exit 0
 fi
 
-echo "Instalando Homebrew.."
+echo "Instalando Homebrew..."
 
-# Descarga y ejecuta el instalador;
-# NONINTERACTIVE intenta evitar prompts interactivos del instalador
-NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# Instalador oficial
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# 'brew shellenv' imprime los exports necesarios; eval los aplica a la sesión actual
-if [[ -x /usr/local/bin/brew ]]; then
-  eval "$(/usr/local/bin/brew shellenv)" || true
+# Apple Silicon path
+BREW_PREFIX="/opt/homebrew"
+
+if [[ -x "$BREW_PREFIX/bin/brew" ]]; then
+  # Aplicar a la sesión actual
+  eval "$("$BREW_PREFIX/bin/brew" shellenv)"
+
+  # Persistir para futuras sesiones (zsh es el default)
+  if ! grep -q 'eval "\$(/opt/homebrew/bin/brew shellenv)"' ~/.zprofile 2>/dev/null; then
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+  fi
+else
+  echo "ERROR: Homebrew no encontrado en $BREW_PREFIX"
+  exit 1
 fi
 
-# Mostrar configuración para verificar
-brew config || true
+brew config
