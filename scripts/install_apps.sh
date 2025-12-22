@@ -2,16 +2,22 @@
 
 # -----------------------------------------------------------
 # Script de instalación de aplicaciones y utilidades macOS
-# Para Mac Intel con Homebrew
+# Para Mac Apple Silicon con Homebrew
 # -----------------------------------------------------------
 
-# Comprobamos que Homebrew esté instalado
+set -e
+
+# -----------------------------------------------------------
+# Comprobación Homebrew
+# -----------------------------------------------------------
 if ! command -v brew &> /dev/null; then
     echo "Homebrew no está instalado. Ejecuta primero install_homebrew.sh"
     exit 1
 fi
 
-# Actualizamos Homebrew
+# -----------------------------------------------------------
+# Actualizar Homebrew
+# -----------------------------------------------------------
 echo "Actualizando Homebrew..."
 brew update
 
@@ -23,55 +29,71 @@ brew install git
 brew install wget
 brew install openssl
 brew install python
-
-#############################################
-# curl (usar versión de Homebrew por defecto)
-#############################################
-
-# Instalar curl con Homebrew
 brew install curl
 
-# Asegurar que el curl de Homebrew está primero en el PATH
-BREW_CURL_PATH="/usr/local/opt/curl/bin"
-BREW_CURL_LIB="/usr/local/opt/curl/lib"
-BREW_CURL_INCLUDE="/usr/local/opt/curl/include"
+# -----------------------------------------------------------
+# curl (usar versión de Homebrew)
+# -----------------------------------------------------------
+BREW_PREFIX="$(brew --prefix)"
+CURL_PREFIX="$(brew --prefix curl)"
 
-# Añadir al PATH solo si no está ya presente
-if ! grep -q "$BREW_CURL_PATH" ~/.zshrc; then
-    echo 'export PATH="/usr/local/opt/curl/bin:$PATH"' >> ~/.zshrc
-    echo "[INFO] Añadido curl de Homebrew al PATH en ~/.zshrc"
-else
-    echo "[INFO] curl de Homebrew ya está en el PATH"
+BREW_CURL_PATH="$CURL_PREFIX/bin"
+BREW_CURL_LIB="$CURL_PREFIX/lib"
+BREW_CURL_INCLUDE="$CURL_PREFIX/include"
+
+ZSHRC="$HOME/.zshrc"
+
+# PATH
+if ! grep -q "$BREW_CURL_PATH" "$ZSHRC"; then
+    echo "export PATH=\"$BREW_CURL_PATH:\$PATH\"" >> "$ZSHRC"
+    echo "[INFO] Añadido curl de Homebrew al PATH"
 fi
 
-# Añadir LDFLAGS si no está ya
-if ! grep -q "LDFLAGS=.*$BREW_CURL_LIB" ~/.zshrc; then
-    echo 'export LDFLAGS="-L/usr/local/opt/curl/lib"' >> ~/.zshrc
-    echo "[INFO] Añadido LDFLAGS para curl en ~/.zshrc"
-else
-    echo "[INFO] LDFLAGS ya configurado para curl"
+# LDFLAGS
+if ! grep -q "$BREW_CURL_LIB" "$ZSHRC"; then
+    echo "export LDFLAGS=\"-L$BREW_CURL_LIB\"" >> "$ZSHRC"
+    echo "[INFO] Añadido LDFLAGS para curl"
 fi
 
-# Añadir CPPFLAGS si no está ya
-if ! grep -q "CPPFLAGS=.*$BREW_CURL_INCLUDE" ~/.zshrc; then
-    echo 'export CPPFLAGS="-I/usr/local/opt/curl/include"' >> ~/.zshrc
-    echo "[INFO] Añadido CPPFLAGS para curl en ~/.zshrc"
-else
-    echo "[INFO] CPPFLAGS ya configurado para curl"
+# CPPFLAGS
+if ! grep -q "$BREW_CURL_INCLUDE" "$ZSHRC"; then
+    echo "export CPPFLAGS=\"-I$BREW_CURL_INCLUDE\"" >> "$ZSHRC"
+    echo "[INFO] Añadido CPPFLAGS para curl"
 fi
 
 # -----------------------------------------------------------
-# IDEs / Editores / Aplicaciones de productividad
+# Rosetta 2
+# -----------------------------------------------------------
+if ! /usr/bin/pgrep oahd >/dev/null 2>&1; then
+    echo "Instalando Rosetta 2..."
+    softwareupdate --install-rosetta --agree-to-license
+else
+    echo "Rosetta 2 ya está instalada, saltando..."
+fi
+
+# -----------------------------------------------------------
+# Apps
 # -----------------------------------------------------------
 echo "Instalando aplicaciones de productividad..."
 brew install --cask visual-studio-code
 brew install --cask obsidian
+brew install --cask launchos
+brew install --cask steam
+brew install --cask stats
+brew install --cask appcleaner
+
 
 # -----------------------------------------------------------
 # Terminal
 # -----------------------------------------------------------
 echo "Instalando terminal Ghostty..."
 brew install --cask ghostty
+
+# -----------------------------------------------------------
+# Navegadores
+# -----------------------------------------------------------
+echo "Instalando navegador Brave..."
+brew install --cask brave-browser
 
 # -----------------------------------------------------------
 # Fuentes
@@ -81,21 +103,26 @@ brew install --cask font-jetbrains-mono
 brew install --cask font-jetbrains-mono-nerd-font
 
 # -----------------------------------------------------------
-# Zsh + Zinit (gestor de plugins Zsh)
+# Zsh + Zinit
 # -----------------------------------------------------------
 echo "Instalando Zsh..."
 brew install zsh
 
-# establecer zsh de Homebrew como shell por defecto
-chsh -s /opt/homebrew/bin/zsh
+# Establecer zsh de Homebrew como shell por defecto
+if ! grep -q "$BREW_PREFIX/bin/zsh" /etc/shells; then
+    echo "$BREW_PREFIX/bin/zsh" | sudo tee -a /etc/shells > /dev/null
+fi
 
-if [[ ! -d "$HOME/.local/share/zinit/zinit.git" ]]; then
+chsh -s "$BREW_PREFIX/bin/zsh"
+
+# Zinit
+ZINIT_DIR="$HOME/.local/share/zinit/zinit.git"
+
+if [[ ! -d "$ZINIT_DIR" ]]; then
     echo "Instalando Zinit..."
-    mkdir -p "$HOME/.local/share/zinit"
+    mkdir -p "$(dirname "$ZINIT_DIR")"
     chmod g-rwX "$HOME/.local/share/zinit"
-    git clone https://github.com/zdharma-continuum/zinit "$HOME/.local/share/zinit/zinit.git" \
-        && echo "Zinit instalado correctamente." \
-        || echo "Error al clonar Zinit."
+    git clone https://github.com/zdharma-continuum/zinit "$ZINIT_DIR"
 else
     echo "Zinit ya está instalado, saltando..."
 fi
@@ -106,4 +133,4 @@ fi
 echo "Limpiando Homebrew..."
 brew cleanup
 
-echo "¡Instalación completada!"
+echo "Instalación completada para Apple Silicon."
