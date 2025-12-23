@@ -81,7 +81,7 @@ brew install --cask launchos
 brew install --cask steam
 brew install --cask stats
 brew install --cask appcleaner
-
+brew install --cask logi-options+
 
 # -----------------------------------------------------------
 # Terminal
