@@ -82,6 +82,7 @@ brew install --cask steam
 brew install --cask stats
 brew install --cask appcleaner
 brew install --cask logi-options+
+brew install --cask google-chrome
 
 # -----------------------------------------------------------
 # Terminal
