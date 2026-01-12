@@ -77,24 +77,15 @@ fi
 echo "Instalando aplicaciones de productividad..."
 brew install --cask visual-studio-code
 brew install --cask obsidian
-brew install --cask launchos
-brew install --cask steam
-brew install --cask stats
 brew install --cask appcleaner
-brew install --cask logi-options+
 brew install --cask google-chrome
+brew install --cask brave-browser
 
 # -----------------------------------------------------------
 # Terminal
 # -----------------------------------------------------------
 echo "Instalando terminal Ghostty..."
 brew install --cask ghostty
-
-# -----------------------------------------------------------
-# Navegadores
-# -----------------------------------------------------------
-echo "Instalando navegador Brave..."
-brew install --cask brave-browser
 
 # -----------------------------------------------------------
 # Fuentes
