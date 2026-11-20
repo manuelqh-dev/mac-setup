@@ -62,16 +62,6 @@ if ! grep -q "$BREW_CURL_INCLUDE" "$ZSHRC"; then
 fi
 
 # -----------------------------------------------------------
-# Rosetta 2
-# -----------------------------------------------------------
-if ! /usr/bin/pgrep oahd >/dev/null 2>&1; then
-    echo "Instalando Rosetta 2..."
-    softwareupdate --install-rosetta --agree-to-license
-else
-    echo "Rosetta 2 ya está instalada, saltando..."
-fi
-
-# -----------------------------------------------------------
 # Apps
 # -----------------------------------------------------------
 echo "Instalando aplicaciones de productividad..."
